@@ -1,19 +1,27 @@
 require("dotenv").config();
 const morgan = require("morgan");
-
 const express = require("express");
+const mongoose = require("mongoose");
+const categoryRoute = require("./routes/category.route");
 
+// connect to databaase
+const dbConnection = require("./config/database");
+dbConnection();
+//express app
 const app = express();
+//middlewares
+app.use(express.json());
 if (process.env.NODE_ENV === "development") {
   morgan("dev");
-  console.log(`mode: ${process.env.NODE_ENV}`);
 }
+
+//mount routes
+app.use("/api/vi/categories", categoryRoute);
 
 app.get("/", (req, res) => {
   res.send("TEST");
 });
 
-console.log(process.env);
 app.listen(process.env.PORT, () => {
   console.log(`running on port ${process.env.PORT}`);
 });
