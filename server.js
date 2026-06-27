@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const express = require("express");
 const mongoose = require("mongoose");
 const categoryRoute = require("./routes/category.route");
+const subCategoryRoute = require("./routes/subCategory.route");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
 // connect to databaase
@@ -18,6 +19,7 @@ if (process.env.NODE_ENV === "development") {
 
 //mount routes
 app.use("/api/v1/categories", categoryRoute);
+app.use("/api/v1/subcategories", subCategoryRoute);
 
 app.get("/", (req, res) => {
   res.send("TEST");
@@ -33,6 +35,7 @@ const server = app.listen(process.env.PORT, () => {
 });
 
 //handle rejection outside express
+// "unhandledRejection" => is event
 process.on("unhandledRejection", (err) => {
   console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
   server.close(() => {
