@@ -1,10 +1,10 @@
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/validatorMiddleware");
 
-// exports.getCategoryValidator = [
-//   check("id").isMongoId().withMessage("Invalid category id format"),
-//   validatorMiddleware,
-// ];
+exports.getSubCategoryValidator = [
+  check("id").isMongoId().withMessage("Invalid category id format"),
+  validatorMiddleware,
+];
 
 exports.createSubCategoryValidator = [
   check("name")
@@ -22,11 +22,11 @@ exports.createSubCategoryValidator = [
   validatorMiddleware,
 ];
 
-// exports.updateCategoryValidator = [
-//   check("id").isMongoId().withMessage("Invalid category id format"),
-//   validatorMiddleware,
-// ];
-// exports.deleteCategoryValidator = [
-//   check("id").isMongoId().withMessage("Invalid category id format"),
-//   validatorMiddleware,
-// ];
+exports.updateSubCategoryValidator = [
+  check("id").isMongoId().withMessage("Invalid subcategory id format"),
+  validatorMiddleware,
+];
+exports.deleteSubCategoryValidator = [
+  check("id").isMongoId().withMessage("Invalid subcategory id format"),
+  validatorMiddleware,
+];
