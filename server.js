@@ -2,10 +2,12 @@ require("dotenv").config();
 const morgan = require("morgan");
 const express = require("express");
 const mongoose = require("mongoose");
-const categoryRoute = require("./routes/category.route");
-const subCategoryRoute = require("./routes/subCategory.route");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
+// routes
+const categoryRoute = require("./routes/category.route");
+const subCategoryRoute = require("./routes/subCategory.route");
+const brandRoute = require("./routes/brand.route");
 // connect to databaase
 const dbConnection = require("./config/database");
 dbConnection();
@@ -20,6 +22,7 @@ if (process.env.NODE_ENV === "development") {
 //mount routes
 app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subCategoryRoute);
+app.use("/api/v1/brands", brandRoute);
 
 app.get("/", (req, res) => {
   res.send("TEST");
