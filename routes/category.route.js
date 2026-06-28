@@ -16,7 +16,7 @@ const {
 } = require("../utils/validators/categoryValidator");
 const subCategoriesRoute = require("./subCategory.route");
 const router = express.Router();
-
+//nested route
 router.use("/:categoryId/subcategories", subCategoriesRoute);
 router
   .route("/")

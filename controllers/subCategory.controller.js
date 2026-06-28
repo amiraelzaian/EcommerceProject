@@ -2,6 +2,13 @@ const SubCategory = require("../models/subCategory.model");
 const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
+// middleware to set category Id to body
+exports.setCategoryIdToBody = (req, res, next) => {
+  if (!req.body.category) {
+    req.body.category = req.params.categoryId;
+  }
+  next();
+};
 
 // @desc   create subcategory
 // @route  POST /api/vi/subcategories
@@ -17,6 +24,14 @@ exports.createSubCategory = asyncHandler(async (req, res) => {
   res.status(201).json({ data: subCategory });
 });
 
+// middlewarte to filter
+exports.filtersubCategoriesByCategoryId = (req, res, next) => {
+  let filterObject = {};
+  if (req.params.categoryId) filterObject = { category: req.params.categoryId };
+  req.filterObj = filterObject;
+  next();
+};
+
 // @desc   Get list of  subcategories
 // @route  GET /api/vi/subcategories
 // @access Public
@@ -25,10 +40,7 @@ exports.getSubCategories = asyncHandler(async (req, res) => {
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
 
-  let filterObject = {};
-  if (req.params.categoryId) filterObject = { category: req.params.categoryId };
-
-  const subCategories = await SubCategory.find(filterObject)
+  const subCategories = await SubCategory.find(req.filterObj)
     .skip(skip)
     .limit(limit);
   //  .populate({ path: "category", select: "name" });

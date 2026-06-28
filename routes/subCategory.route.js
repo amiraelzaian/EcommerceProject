@@ -6,6 +6,8 @@ const {
   getSubCategory,
   updateSubCategory,
   deleteSubCategory,
+  setCategoryIdToBody,
+  filtersubCategoriesByCategoryId,
 } = require("../controllers/subCategory.controller");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
 const {
@@ -15,14 +17,14 @@ const {
   deleteSubCategoryValidator,
 } = require("../utils/validators/subCategoryValidator");
 
-//mergeParmas: allows us to access prameters on other routers
-// ex  we need to acess category id from category router
+//mergeParams: allows us to access prameters on other routers
+// ex  we need to acess category id from subcategory router
 const router = express.Router({ mergeParams: true });
 
 router
   .route("/")
-  .post(createSubCategoryValidator, createSubCategory)
-  .get(getSubCategories);
+  .post(setCategoryIdToBody, createSubCategoryValidator, createSubCategory)
+  .get(filtersubCategoriesByCategoryId, getSubCategories);
 router
   .route("/:id")
   .get(getSubCategoryValidator, getSubCategory)
