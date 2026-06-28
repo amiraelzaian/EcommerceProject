@@ -8,6 +8,7 @@ const globalError = require("./middlewares/errorMiddleware");
 const categoryRoute = require("./routes/category.route");
 const subCategoryRoute = require("./routes/subCategory.route");
 const brandRoute = require("./routes/brand.route");
+const productRoute = require("./routes/product.route");
 // connect to databaase
 const dbConnection = require("./config/database");
 dbConnection();
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV === "development") {
 app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subCategoryRoute);
 app.use("/api/v1/brands", brandRoute);
+app.use("/api/v1/products", productRoute);
 
 app.get("/", (req, res) => {
   res.send("TEST");
