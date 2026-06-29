@@ -6,14 +6,31 @@ const ApiError = require("../utils/apiError");
 // @route  GET /api/vi/products
 // @access Public
 exports.getProducts = asyncHandler(async (req, res) => {
+  const queryStringObj = { ...req.query };
+  const excludesFields = ["page", "sort", "limit", "fields"];
+  excludesFields.forEach((field) => delete queryStringObj[field]);
+
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
+  const filter = {};
 
-  const products = await Product.find({})
+  if (queryStringObj.price) {
+    filter.price = queryStringObj.price;
+  }
+
+  if (queryStringObj.ratingsAverage) {
+    filter.ratingsAverage = queryStringObj.ratingsAverage;
+  }
+
+  // build query
+  const mongooseQuery = Product.find(filter)
     .skip(skip)
     .limit(limit)
     .populate({ path: "category", select: "name" });
+  // excute query
+  const products = await mongooseQuery();
+
   res.status(200).json({ results: products.length, data: products });
 });
 // @desc   Get specific product by id
