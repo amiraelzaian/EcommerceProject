@@ -13,15 +13,10 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const page = +req.query.page || 1;
   const limit = +req.query.limit || 10;
   const skip = (page - 1) * limit;
-  const filter = {};
 
-  if (queryStringObj.price) {
-    filter.price = queryStringObj.price;
-  }
-
-  if (queryStringObj.ratingsAverage) {
-    filter.ratingsAverage = queryStringObj.ratingsAverage;
-  }
+  let queryStr = JSON.stringify(queryStringObj);
+  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  const filter = JSON.parse(queryStr);
 
   // build query
   const mongooseQuery = Product.find(filter)
@@ -29,7 +24,7 @@ exports.getProducts = asyncHandler(async (req, res) => {
     .limit(limit)
     .populate({ path: "category", select: "name" });
   // excute query
-  const products = await mongooseQuery();
+  const products = await mongooseQuery;
 
   res.status(200).json({ results: products.length, data: products });
 });

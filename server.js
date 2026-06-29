@@ -14,8 +14,10 @@ const dbConnection = require("./config/database");
 dbConnection();
 //express app
 const app = express();
+
 //middlewares
 app.use(express.json());
+app.set("query parser", "extended");
 if (process.env.NODE_ENV === "development") {
   morgan("dev");
 }
