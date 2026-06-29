@@ -47,7 +47,7 @@ exports.createProductValidator = [
       return true;
     }),
 
-  check("imagCover").notEmpty().withMessage("Product image cover is required"),
+  check("imageCover").notEmpty().withMessage("Product image cover is required"),
   check("images")
     .optional()
     .isArray()
@@ -63,6 +63,20 @@ exports.createProductValidator = [
         }
       });
     }),
+  check("category")
+    .notEmpty()
+    .withMessage("Product must be belong to a category")
+    .isMongoId()
+    .withMessage("Invalid ID formate")
+    .custom((categoryId) =>
+      Category.findById(categoryId).then((category) => {
+        if (!category) {
+          return Promise.reject(
+            new Error(`No category for this id: ${categoryId}`),
+          );
+        }
+      }),
+    ),
   check("subcategory")
     .optional()
     .isMongoId()

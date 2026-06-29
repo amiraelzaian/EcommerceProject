@@ -19,6 +19,6 @@ router.route("/").get(getProducts).post(createProductValidator, createProduct);
 router
   .route("/:id")
   .get(getProductValidator, getProduct)
-  .put(updateProductValidator, updateProduct)
+  .patch(updateProductValidator, updateProduct)
   .delete(deleteProductValidator, deleteProduct);
 module.exports = router;
