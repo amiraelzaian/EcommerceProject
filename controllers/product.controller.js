@@ -3,6 +3,8 @@ const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 const ApiFeatures = require("../utils/apiFeatures");
+const factory = require("./handlersFactory");
+
 // @desc   Get list of  products
 // @route  GET /api/vi/products
 // @access Public
@@ -69,11 +71,4 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
 // @route  Delete /api/vi/products/id
 // @access Private
 
-exports.deleteProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const product = await Product.findByIdAndDelete(id);
-  if (!product) {
-    return next(new ApiError(`No product for this id ${id}`, 404));
-  }
-  res.status(204).send();
-});
+exports.deleteProduct = factory.deleteOne(Product);
