@@ -6,12 +6,13 @@ const ApiError = require("../utils/apiError");
 // @route  GET /api/vi/products
 // @access Public
 exports.getProducts = asyncHandler(async (req, res) => {
+  //1-filteration
   const queryStringObj = { ...req.query };
-  const excludesFields = ["page", "sort", "limit", "fields"];
+  const excludesFields = ["page", "sort", "limit", "fields", "keyword"];
   excludesFields.forEach((field) => delete queryStringObj[field]);
-
+  //2-pagination
   const page = +req.query.page || 1;
-  const limit = +req.query.limit || 10;
+  const limit = +req.query.limit || 20;
   const skip = (page - 1) * limit;
 
   let queryStr = JSON.stringify(queryStringObj);
@@ -19,14 +20,41 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const filter = JSON.parse(queryStr);
 
   // build query
-  const mongooseQuery = Product.find(filter)
+  let mongooseQuery = Product.find(filter)
     .skip(skip)
     .limit(limit)
     .populate({ path: "category", select: "name" });
+
+  //3-sorting
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(",").join(" ");
+    mongooseQuery = mongooseQuery.sort(sortBy);
+  } else {
+    mongooseQuery = mongooseQuery.sort("createdAt");
+  }
+  //4-limit fields
+  if (req.query.fields) {
+    const fields = req.query.fields.split(",").join(" ");
+    mongooseQuery = mongooseQuery.select(fields);
+  } else {
+    mongooseQuery = mongooseQuery.select("-__v");
+  }
+  //5-search
+  if (req.query.keyword) {
+    mongooseQuery = mongooseQuery.and([
+      {
+        $or: [
+          { title: { $regex: req.query.keyword, $options: "i" } },
+          { description: { $regex: req.query.keyword, $options: "i" } },
+        ],
+      },
+    ]);
+  }
+
   // excute query
   const products = await mongooseQuery;
 
-  res.status(200).json({ results: products.length, data: products });
+  res.status(200).json({ results: products.length, page, data: products });
 });
 // @desc   Get specific product by id
 // @route  Get /api/vi/products/:id
