@@ -8,16 +8,15 @@ const ApiFeatures = require("../utils/apiFeatures");
 // @access Public
 exports.getProducts = asyncHandler(async (req, res) => {
   const docsCount = await Product.countDocuments();
-  console.log(docsCount);
   let apiFeatures = new ApiFeatures(Product.find(), req.query)
     .paginate(docsCount)
     .filter()
-    .search()
+    .search("Product")
     .limitFields()
     .sort();
 
   const products = await apiFeatures.mongooseQuery;
-  console.log("products", products);
+
   // apiFeatures = apiFeatures.paginate(products.length);
   res.status(200).json({
     results: products.length,

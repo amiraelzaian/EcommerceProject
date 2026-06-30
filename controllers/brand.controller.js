@@ -2,16 +2,25 @@ const Brand = require("../models/brand.model");
 const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
+const ApiFeatures = require("../utils/apiFeatures");
 // @desc   Get list of  brands
 // @route  GET /api/vi/brands
 // @access Public
 exports.getBrands = asyncHandler(async (req, res) => {
-  const page = +req.query.page || 1;
-  const limit = +req.query.limit || 10;
-  const skip = (page - 1) * limit;
+  const docsCount = await Brand.countDocuments();
+  let apiFeatures = new ApiFeatures(Brand.find(), req.query)
+    .paginate(docsCount)
+    .filter()
+    .search("Brand")
+    .limitFields()
+    .sort();
 
-  const brands = await Brand.find({}).skip(skip).limit(limit);
-  res.status(200).json({ results: brands.length, data: brands });
+  const brands = await apiFeatures.mongooseQuery;
+  res.status(200).json({
+    results: brands.length,
+    page: apiFeatures.paginationResult,
+    data: brands,
+  });
 });
 // @desc   Get specific brand by id
 // @route  Get /api/vi/brands/:id
