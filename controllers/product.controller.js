@@ -1,59 +1,29 @@
 const Product = require("../models/product.model");
-const slugify = require("slugify");
-const asyncHandler = require("express-async-handler");
-const ApiError = require("../utils/apiError");
-const ApiFeatures = require("../utils/apiFeatures");
+
 const factory = require("./handlersFactory");
 
 // @desc   Get list of  products
-// @route  GET /api/vi/products
+// @route  GET /api/v1/products
 // @access Public
-exports.getProducts = asyncHandler(async (req, res) => {
-  const docsCount = await Product.countDocuments();
-  let apiFeatures = new ApiFeatures(Product.find(), req.query)
-    .paginate(docsCount)
-    .filter()
-    .search("Product")
-    .limitFields()
-    .sort();
-
-  const products = await apiFeatures.mongooseQuery;
-
-  // apiFeatures = apiFeatures.paginate(products.length);
-  res.status(200).json({
-    results: products.length,
-    page: apiFeatures.paginationResult,
-    data: products,
-  });
-});
+exports.getProducts = factory.getAll(Product);
 // @desc   Get specific product by id
-// @route  Get /api/vi/products/:id
+// @route  Get /api/v1/products/:id
 // @access Public
 
-exports.getProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const product = await Product.findById(id).populate({
-    path: "category",
-    select: "name",
-  });
-  if (!product) {
-    return next(new ApiError(`No product for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: product });
-});
+exports.getProduct = factory.getOne(Product);
 
 // @desc   create product
-// @route  POST /api/vi/products
+// @route  POST /api/v1/products
 // @access Private
 exports.createProduct = factory.createOne(Product);
 
 // @desc   Update specific product
-// @route  Patch/put /api/vi/products/id
+// @route  Patch/put /api/v1/products/id
 // @access Private
 exports.updateProduct = factory.updateOne(Product);
 
 // @desc   Delete specific product
-// @route  Delete /api/vi/products/id
+// @route  Delete /api/v1/products/id
 // @access Private
 
 exports.deleteProduct = factory.deleteOne(Product);

@@ -30,3 +30,35 @@ exports.createOne = (Model) =>
     const document = await Model.create(req.body);
     res.status(201).json({ data: document });
   });
+
+exports.getOne = (Model) =>
+  asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const document = await Medel.findById(id);
+    if (!document) {
+      return next(new ApiError(`No document for this id ${id}`, 404));
+    }
+    res.status(200).json({ data: document });
+  });
+
+exports.getAll = (Model) =>
+  asyncHandler(async (req, res) => {
+    let filter = {};
+    if (req.filterObj) {
+      filter = req.filterObj;
+    }
+    const docsCount = await Model.countDocuments();
+    let apiFeatures = new ApiFeatures(Model.find(filter), req.query)
+      .paginate(docsCount)
+      .filter()
+      .search(Model.modelName)
+      .limitFields()
+      .sort();
+
+    const docs = await apiFeatures.mongooseQuery;
+    res.status(200).json({
+      results: docs.length,
+      page: apiFeatures.paginationResult,
+      data: docs,
+    });
+  });
