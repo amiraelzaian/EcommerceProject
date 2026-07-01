@@ -40,30 +40,11 @@ exports.getBrand = asyncHandler(async (req, res, next) => {
 // @desc   create brand
 // @route  POST /api/vi/brands
 // @access Private
-exports.createBrand = asyncHandler(async (req, res) => {
-  const name = req.body.name;
-
-  const brand = await Brand.create({ name, slug: slugify(name) });
-  res.status(201).json({ data: brand });
-});
-
-// @desc   Update specific brand
-// @route  Patch/put /api/vi/brands/id
-// @access Private
-exports.updateBrand = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const { name } = req.body;
-  const brand = await Brand.findOneAndUpdate(
-    { _id: id },
-    { name, slug: slugify(name) },
-    { new: true },
-  );
-  if (!brand) {
-    return next(new ApiError(`No brand for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: brand });
-});
-
+exports.createBrand =
+  // @desc   Update specific brand
+  // @route  Patch/put /api/vi/brands/id
+  // @access Private
+  exports.updateBrand = factory.updateOne(Brand);
 // @desc   Delete specific brand
 // @route  Delete /api/vi/barands/id
 // @access Private

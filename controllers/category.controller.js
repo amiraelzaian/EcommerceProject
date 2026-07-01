@@ -40,29 +40,12 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 // @desc   create category
 // @route  POST /api/vi/categories
 // @access Private
-exports.createCategory = asyncHandler(async (req, res) => {
-  const name = req.body.name;
-
-  const category = await Category.create({ name, slug: slugify(name) });
-  res.status(201).json({ data: category });
-});
+exports.createCategory = factory.createOne(Category);
 
 // @desc   Update specific category
 // @route  Patch/put /api/vi/categories/id
 // @access Private
-exports.updateCategory = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const { name } = req.body;
-  const category = await Category.findOneAndUpdate(
-    { _id: id },
-    { name, slug: slugify(name) },
-    { new: true },
-  );
-  if (!category) {
-    return next(new ApiError(`No category for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: category });
-});
+exports.updateCategory = factory.updateOne(Category);
 
 // @desc   Delete specific category
 // @route  Delete /api/vi/categories/id

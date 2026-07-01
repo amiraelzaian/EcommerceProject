@@ -13,6 +13,10 @@ exports.createProductValidator = [
     .custom((val, { req }) => {
       req.body.slug = slugify(val);
       return true;
+    })
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val);
+      return true;
     }),
   check("description")
     .notEmpty()
