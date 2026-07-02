@@ -6,6 +6,7 @@ const {
   getCategory,
   updateCategory,
   deleteCategory,
+  uploadCategoryImage,
 } = require("../controllers/category.controller");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
 const {
@@ -15,12 +16,13 @@ const {
   deleteCategoryValidator,
 } = require("../utils/validators/categoryValidator");
 const subCategoriesRoute = require("./subCategory.route");
+
 const router = express.Router();
 //nested route
 router.use("/:categoryId/subcategories", subCategoriesRoute);
 router
   .route("/")
-  .post(createCategoryValidator, createCategory)
+  .post(uploadCategoryImage, createCategoryValidator, createCategory)
   .get(getCategories);
 router
   .route("/:id")
