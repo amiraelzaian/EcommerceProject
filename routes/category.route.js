@@ -7,6 +7,7 @@ const {
   updateCategory,
   deleteCategory,
   uploadCategoryImage,
+  resizeImage,
 } = require("../controllers/category.controller");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
 const {
@@ -22,7 +23,12 @@ const router = express.Router();
 router.use("/:categoryId/subcategories", subCategoriesRoute);
 router
   .route("/")
-  .post(uploadCategoryImage, createCategoryValidator, createCategory)
+  .post(
+    uploadCategoryImage,
+    resizeImage,
+    createCategoryValidator,
+    createCategory,
+  )
   .get(getCategories);
 router
   .route("/:id")
