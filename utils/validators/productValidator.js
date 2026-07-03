@@ -55,18 +55,8 @@ exports.createProductValidator = [
   check("images")
     .optional()
     .isArray()
-    .withMessage("Product must be belong to a category")
-    .isMongoId()
-    .withMessage("Invalid Id foramte")
-    .custom((categoryId) => {
-      Category.findById(categoryId).then((category) => {
-        if (!category) {
-          return Promise.reject(
-            new Error(`No category for this id: ${categoryId}`),
-          );
-        }
-      });
-    }),
+    .withMessage("Product must be belong to a category"),
+
   check("category")
     .notEmpty()
     .withMessage("Product must be belong to a category")
@@ -136,6 +126,7 @@ exports.getProductValidator = [
 
 exports.updateProductValidator = [
   check("id").isMongoId().withMessage("Invalid ID formate"),
+  check("imageCover").optional(),
   body("title")
     .optional()
     .custom((val, { req }) => {
