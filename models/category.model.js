@@ -18,6 +18,21 @@ const categorySchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+const setImageUrl = (doc) => {
+  if (doc.image) {
+    const imageUrl = `${process.env.BASE_URL}/categories/${doc.image}`;
+    doc.image = imageUrl;
+  }
+};
+// when doc is initilized in db(update,get)
+categorySchema.post("init", (doc) => {
+  setImageUrl(doc);
+});
+// when doc is created (saved)
+categorySchema.post("save", (doc) => {
+  setImageUrl(doc);
+});
 const CategoryModel = mongoose.model("Category", categorySchema);
 
 module.exports = CategoryModel;

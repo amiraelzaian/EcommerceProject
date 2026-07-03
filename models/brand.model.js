@@ -18,5 +18,18 @@ const brandSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
+const setImageUrl = (doc) => {
+  if (doc.image) {
+    const imageUrl = `${process.env.BASE_URL}/brands/${doc.image}`;
+    doc.image = imageUrl;
+  }
+};
+// when doc is initilized in db(update,get)
+brandSchema.post("init", (doc) => {
+  setImageUrl(doc);
+});
+// when doc is created (saved)
+brandSchema.post("save", (doc) => {
+  setImageUrl(doc);
+});
 module.exports = mongoose.model("Brand", brandSchema);

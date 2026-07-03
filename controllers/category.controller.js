@@ -22,7 +22,7 @@ const { uploadSingleImage } = require("../middlewares/uploadimageMiddleware");
 // middleware
 exports.uploadCategoryImage = uploadSingleImage("image");
 // image processing
-exports.resizeImage = asyncHandler(async (req, res, next) => {
+exports.resizeCategoryImage = asyncHandler(async (req, res, next) => {
   const filename = `category-${uuidv4()}-${Date.now()}.jpeg`;
   await sharp(req.file.buffer)
     .resize(600, 600)

@@ -7,7 +7,8 @@ const {
   updateCategory,
   deleteCategory,
   uploadCategoryImage,
-  resizeImage,
+
+  resizeCategoryImage,
 } = require("../controllers/category.controller");
 const validatorMiddleware = require("../middlewares/validatorMiddleware");
 const {
@@ -25,7 +26,7 @@ router
   .route("/")
   .post(
     uploadCategoryImage,
-    resizeImage,
+    resizeCategoryImage,
     createCategoryValidator,
     createCategory,
   )
@@ -35,7 +36,7 @@ router
   .get(getCategoryValidator, getCategory)
   .patch(
     uploadCategoryImage,
-    resizeImage,
+    resizeCategoryImage,
     updateCategoryValidator,
     updateCategory,
   )
