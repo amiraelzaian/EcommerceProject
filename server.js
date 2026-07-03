@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 const morgan = require("morgan");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -17,6 +18,7 @@ const app = express();
 
 //middlewares
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "uploads")));
 app.set("query parser", "extended");
 if (process.env.NODE_ENV === "development") {
   morgan("dev");

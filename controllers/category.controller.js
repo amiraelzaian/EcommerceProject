@@ -2,9 +2,9 @@ const Category = require("../models/category.model");
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const factory = require("./handlersFactory");
-const ApiError = require("../utils/apiError");
 const sharp = require("sharp");
 const asyncHandler = require("express-async-handler");
+const { uploadSingleImage } = require("../middlewares/uploadimageMiddleware");
 // 1) disk storage engine
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -17,21 +17,11 @@ const asyncHandler = require("express-async-handler");
 //   },
 // });
 
-// 2) memory storage engine
-const multerStorage = multer.memoryStorage();
+// 2) memory storage engine ( in middleware uploadimagemiddleware)
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
-  } else {
-    cb(new ApiError("Only images are allowed", 400));
-  }
-};
-
-const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
 // middleware
-exports.uploadCategoryImage = upload.single("image");
-
+exports.uploadCategoryImage = uploadSingleImage("image");
+// image processing
 exports.resizeImage = asyncHandler(async (req, res, next) => {
   const filename = `category-${uuidv4()}-${Date.now()}.jpeg`;
   await sharp(req.file.buffer)
@@ -39,6 +29,8 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
     .toFormat("jpeg")
     .jpeg({ quality: 95 })
     .toFile(`uploads/categories/${filename}`);
+  //save image in  DB
+  req.body.image = filename;
 
   next();
 });

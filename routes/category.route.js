@@ -33,7 +33,12 @@ router
 router
   .route("/:id")
   .get(getCategoryValidator, getCategory)
-  .patch(updateCategoryValidator, updateCategory)
+  .patch(
+    uploadCategoryImage,
+    resizeImage,
+    updateCategoryValidator,
+    updateCategory,
+  )
   .delete(deleteCategoryValidator, deleteCategory);
 
 module.exports = router;
