@@ -6,17 +6,9 @@ const ApiError = require("../utils/apiError");
 const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
 const multerStorage = multer.memoryStorage();
+const uploadMixOfImages = require("../middlewares/uploadimageMiddleware");
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
-  } else {
-    cb(new ApiError("Only images are allowed", 400));
-  }
-};
-
-const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
-exports.uploadProductImages = upload.fields([
+exports.uploadProductImages = uploadMixOfImages([
   {
     name: "imageCover",
     maxCount: 1,
@@ -28,7 +20,6 @@ exports.uploadProductImages = upload.fields([
 ]);
 // middleware to resisze
 exports.resizeProductImages = asyncHandler(async (req, res, next) => {
-  console.log(req.files);
   //image processing gor image cover
   if (req.files && req.files.imageCover) {
     const imageCoverFileName = `product-${uuidv4()}-${Date.now()}-cover.jpeg`;
