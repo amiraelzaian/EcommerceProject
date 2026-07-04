@@ -7,9 +7,17 @@ const {
   getUsers,
   resizeUserImage,
   uploadUserImage,
+  changeUserPassword,
 } = require("../controllers/user.controller");
-const { createUserValidator } = require("../utils/validators/userValidator");
+const {
+  createUserValidator,
+  changeUserPasswordValidator,
+} = require("../utils/validators/userValidator");
 const router = express.Router();
+
+router
+  .route("/changepassword/:id")
+  .patch(changeUserPasswordValidator, changeUserPassword);
 
 router
   .route("/")
