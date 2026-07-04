@@ -6,7 +6,7 @@ const ApiError = require("../utils/apiError");
 const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
 const multerStorage = multer.memoryStorage();
-const uploadMixOfImages = require("../middlewares/uploadimageMiddleware");
+const { uploadMixOfImages } = require("../middlewares/uploadimageMiddleware");
 
 exports.uploadProductImages = uploadMixOfImages([
   {
