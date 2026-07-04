@@ -34,7 +34,7 @@ exports.createOne = (Model) =>
 exports.getOne = (Model) =>
   asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    const document = await Medel.findById(id);
+    const document = await Model.findById(id);
     if (!document) {
       return next(new ApiError(`No document for this id ${id}`, 404));
     }

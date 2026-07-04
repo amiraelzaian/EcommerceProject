@@ -6,17 +6,19 @@ const factory = require("./handlersFactory");
 const asyncHandler = require("express-async-handler");
 
 // middleware
-exports.uploadUserImage = uploadSingleImage("prifleImage");
+exports.uploadUserImage = uploadSingleImage("profileImage");
 // image processing
 exports.resizeUserImage = asyncHandler(async (req, res, next) => {
   const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat("jpeg")
-    .jpeg({ quality: 95 })
-    .toFile(`uploads/users/${filename}`);
-  //save image in  DB
-  req.body.image = filename;
+  if (req.file) {
+    await sharp(req.file.buffer)
+      .resize(600, 600)
+      .toFormat("jpeg")
+      .jpeg({ quality: 95 })
+      .toFile(`uploads/users/${filename}`);
+    //save image in  DB
+    req.body.profileImage = filename;
+  }
 
   next();
 });
