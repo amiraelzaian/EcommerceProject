@@ -38,8 +38,8 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// in mongoose 9+, don't use next , use async/await
-
+// in mongoose 9+, don't use next , use async/await, 
+// it redirect it to next middleware automatically
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
