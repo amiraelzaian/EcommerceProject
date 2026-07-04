@@ -8,12 +8,12 @@ const {
   resizeUserImage,
   uploadUserImage,
 } = require("../controllers/user.controller");
-
+const { createUserValidator } = require("../utils/validators/userValidator");
 const router = express.Router();
 
 router
   .route("/")
-  .post(uploadUserImage, resizeUserImage, createUser)
+  .post(uploadUserImage, resizeUserImage, createUserValidator, createUser)
   .get(getUsers);
 router
   .route("/:id")
