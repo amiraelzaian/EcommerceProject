@@ -37,11 +37,12 @@ router
   .route("/:id")
   .get(getCategoryValidator, getCategory)
   .patch(
+    protect,
     uploadCategoryImage,
     resizeCategoryImage,
     updateCategoryValidator,
     updateCategory,
   )
-  .delete(deleteCategoryValidator, deleteCategory);
+  .delete(protect, deleteCategoryValidator, deleteCategory);
 
 module.exports = router;

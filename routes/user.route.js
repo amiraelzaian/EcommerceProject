@@ -17,16 +17,16 @@ const router = express.Router();
 
 router
   .route("/changepassword/:id")
-  .patch(changeUserPasswordValidator, changeUserPassword);
+  .patch(protect,changeUserPasswordValidator, changeUserPassword);
 
 router
   .route("/")
-  .post(uploadUserImage, resizeUserImage, createUserValidator, createUser)
-  .get(getUsers);
+  .post(protect,uploadUserImage, resizeUserImage, createUserValidator, createUser)
+  .get(protect,getUsers);
 router
   .route("/:id")
-  .get(getUser)
-  .patch(uploadUserImage, resizeUserImage, updateUser)
-  .delete(deleteUser);
+  .get(protect,getUser)
+  .patch(protect,uploadUserImage, resizeUserImage, updateUser)
+  .delete(protect,deleteUser);
 
 module.exports = router;
