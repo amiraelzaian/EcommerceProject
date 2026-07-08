@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "password is requried"],
       minLenth: [6, "Too short password"],
     },
+    passwordChangedAt: Date,
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -38,7 +39,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// in mongoose 9+, don't use next , use async/await, 
+// in mongoose 9+, don't use next , use async/await,
 // it redirect it to next middleware automatically
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;

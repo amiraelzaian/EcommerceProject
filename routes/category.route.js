@@ -18,6 +18,7 @@ const {
   deleteCategoryValidator,
 } = require("../utils/validators/categoryValidator");
 const subCategoriesRoute = require("./subCategory.route");
+const { protect } = require("../controllers/auth.controller");
 
 const router = express.Router();
 //nested route
@@ -25,6 +26,7 @@ router.use("/:categoryId/subcategories", subCategoriesRoute);
 router
   .route("/")
   .post(
+    protect,
     uploadCategoryImage,
     resizeCategoryImage,
     createCategoryValidator,

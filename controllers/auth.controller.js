@@ -12,7 +12,7 @@ const createToken = (payload) => {
 };
 
 // @desc   Signnup
-// @route  GET /api/v1/auth/signup
+// @route  post /api/v1/auth/signup
 // @access Public
 exports.signup = asyncHandler(async (req, res, next) => {
   //1-ceate user
@@ -29,7 +29,9 @@ exports.signup = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({ data: user, token });
 });
-
+// @desc   login
+// @route  post /api/v1/auth/login
+// @access Public
 exports.login = asyncHandler(async (req, res, next) => {
   //1- check if password and email in the body (validation)
   //2- check if user exists and check if password is correct
@@ -42,4 +44,46 @@ exports.login = asyncHandler(async (req, res, next) => {
   const token = createToken(user._id);
   //4- send response to cleint side
   res.status(200).json({ data: user, token });
+});
+
+exports.protect = asyncHandler(async (req, res, next) => {
+  //1- check if token exists, if yes hold it
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token) {
+    return next(new ApiError("You are not logged in, please log in ", 401));
+  }
+  //2- verify token  ->no change happen, not expires
+  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  //3- check if user exist
+  const currentUser = await User.findById(decoded.payload);
+  if (!currentUser) {
+    return next(
+      new ApiError("The user that belong to this token doesn't exist", 401),
+    );
+  }
+
+  //4- check if user change his password after token generated
+  if (currentUser?.passwordChanged) {
+    const passChangedTimeStamp = parseInt(
+      currentUser.passwordChangedAt.getTime() / 1000,
+      10,
+    );
+    // pass changed after token created
+    if (passChangedTimeStamp > decodes.iat) {
+      return next(
+        new ApiError(
+          "user has changed account credintial recently, login again",
+          401,
+        ),
+      );
+    }
+  }
+  req.user = currentUser;
+  next();
 });

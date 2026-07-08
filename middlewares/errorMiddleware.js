@@ -1,9 +1,17 @@
+const ApiError = require("../utils/apiError");
+
+const handleJwtInvalidSignature = () =>
+  new ApiError("Invalid token, please login", 401);
+
 const globalError = (error, req, res, next) => {
   error.statusCode = error.statusCode || 500;
   error.staus = error.status || "error";
   if (process.env.NODE_ENV === "development") {
     sendErrorForDev(error, res);
   } else {
+    if (error.name === "jsonwebtokenError") {
+      error = handleJwtInvalidSignature();
+    }
     sendErrorForProd(error, res);
   }
 };
