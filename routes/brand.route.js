@@ -15,13 +15,14 @@ const {
   deleteBrandValidator,
   getBrandValidator,
 } = require("../utils/validators/brandValidator");
-const { protect } = require("../controllers/auth.controller");
+const { protect, allowedTo } = require("../controllers/auth.controller");
 const router = express.Router();
 
 router
   .route("/")
   .post(
     protect,
+    allowedTo("admin", "manager"),
     uploadBrandImage,
     resizeBrandImage,
     createBrandValidator,
@@ -33,11 +34,12 @@ router
   .get(getBrandValidator, getBrand)
   .patch(
     protect,
+    allowedTo("admin"),
     uploadBrandImage,
     resizeBrandImage,
     updateBrandValidator,
     updateBrand,
   )
-  .delete(protect, deleteBrandValidator, deleteBrand);
+  .delete(protect, allowedTo("admin"), deleteBrandValidator, deleteBrand);
 
 module.exports = router;

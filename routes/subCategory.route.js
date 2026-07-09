@@ -16,7 +16,7 @@ const {
   updateSubCategoryValidator,
   deleteSubCategoryValidator,
 } = require("../utils/validators/subCategoryValidator");
-const { protect } = require("../controllers/auth.controller");
+const { protect, allowedTo } = require("../controllers/auth.controller");
 
 //mergeParams: allows us to access prameters on other routers
 // ex  we need to acess category id from subcategory router
@@ -26,6 +26,7 @@ router
   .route("/")
   .post(
     protect,
+    allowedTo("admin", "manager"),
     setCategoryIdToBody,
     createSubCategoryValidator,
     createSubCategory,
@@ -34,7 +35,17 @@ router
 router
   .route("/:id")
   .get(getSubCategoryValidator, getSubCategory)
-  .patch(protect, updateSubCategoryValidator, updateSubCategory)
-  .delete(protect, deleteSubCategoryValidator, deleteSubCategory);
+  .patch(
+    protect,
+    allowedTo("admin"),
+    updateSubCategoryValidator,
+    updateSubCategory,
+  )
+  .delete(
+    protect,
+    allowedTo("admin"),
+    deleteSubCategoryValidator,
+    deleteSubCategory,
+  );
 
 module.exports = router;

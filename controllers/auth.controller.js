@@ -46,6 +46,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   res.status(200).json({ data: user, token });
 });
 
+// @desc make sure the user is logged in
 exports.protect = asyncHandler(async (req, res, next) => {
   //1- check if token exists, if yes hold it
   let token;
@@ -75,7 +76,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
       10,
     );
     // pass changed after token created
-    if (passChangedTimeStamp > decodes.iat) {
+    if (passChangedTimeStamp > decoded.iat) {
       return next(
         new ApiError(
           "user has changed account credintial recently, login again",
@@ -87,3 +88,15 @@ exports.protect = asyncHandler(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+//@desc user permessions
+
+exports.allowedTo = (...roles) =>
+  asyncHandler(async (req, res, next) => {
+    //1- access roles
+    //2- access registered user
+    if (!roles.includes(req.user.role)) {
+      return next(new ApiError("This job is out of your permissions", 403));
+    }
+    next();
+  });

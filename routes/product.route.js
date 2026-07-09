@@ -14,7 +14,7 @@ const {
   uploadProductImages,
   resizeProductImages,
 } = require("../controllers/product.controller");
-const { protect } = require("../controllers/auth.controller");
+const { protect, allowedTo } = require("../controllers/auth.controller");
 const router = express.Router();
 
 router
@@ -22,6 +22,7 @@ router
   .get(getProducts)
   .post(
     protect,
+    allowedTo("admin", "manager"),
     uploadProductImages,
     resizeProductImages,
     createProductValidator,
@@ -32,10 +33,11 @@ router
   .get(getProductValidator, getProduct)
   .patch(
     protect,
+    allowedTo("admin"),
     uploadProductImages,
     resizeProductImages,
     updateProductValidator,
     updateProduct,
   )
-  .delete(protect, deleteProductValidator, deleteProduct);
+  .delete(protect, allowedTo("admin"), deleteProductValidator, deleteProduct);
 module.exports = router;
