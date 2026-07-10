@@ -8,6 +8,8 @@ const {
   resizeUserImage,
   uploadUserImage,
   changeUserPassword,
+  getLoggedUserData,
+  changeLoggedUserPassword,
 } = require("../controllers/user.controller");
 const {
   createUserValidator,
@@ -16,6 +18,11 @@ const {
 const router = express.Router();
 const { allowedTo, protect } = require("../controllers/auth.controller");
 
+//user
+router.get("/getme", protect, getLoggedUserData, getUser);
+router.patch("/changeLoggedUserPassword", protect, changeLoggedUserPassword);
+
+//Admim
 router
   .route("/changepassword/:id")
   .patch(protect, changeUserPasswordValidator, changeUserPassword);

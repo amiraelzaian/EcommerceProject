@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const factory = require("./handlersFactory");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
+const { createToken } = require("../utils/createToken");
 
 // middleware
 exports.uploadUserImage = uploadSingleImage("profileImage");
@@ -82,3 +83,35 @@ exports.updateUser = factory.updateOne(User);
 // @route  Delete /api/v1/users/id
 // @access Private
 exports.deleteUser = factory.deleteOne(User);
+
+// @desc   Get logged user data
+// @route  GET /api/v1/users/getMe
+// @access Private/Protected
+
+exports.getLoggedUserData = asyncHandler(async (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+});
+
+// @desc   Update logged user password
+// @route  Patch /api/v1/users/changeMyPassword
+// @access Private/Protected
+exports.changeLoggedUserPassword = asyncHandler(async (req, res, next) => {
+  // update user password based on user payload
+  const document = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      password: await bcrypt.hash(req.body.password, 10),
+      passwordChangedAt: Date.now(),
+    },
+    {
+      new: true,
+    },
+  );
+  if (!document) {
+    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+  }
+  // generate token
+  const token = createToken(req.user._id);
+  res.status(200).json({ data: req.user, token });
+});

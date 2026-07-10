@@ -1,18 +1,11 @@
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const ApiError = require("../utils/apiError");
 const User = require("../models/user.model");
 const sendEmail = require("../utils/sendEmail");
-
-const createToken = (payload) => {
-  const token = jwt.sign({ payload }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRE_TIME,
-  });
-  return token;
-};
-
+const { createToken } = require("../utils/createToken");
+const jwt = require("jsonwebtoken");
 // @desc   Signnup
 // @route  post /api/v1/auth/signup
 // @access Public
