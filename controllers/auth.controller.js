@@ -147,3 +147,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     .status(200)
     .json({ status: "sucess", message: "Reset code sent to eamil" });
 });
+
+// @desc   Verify reset code
+// @route  post /api/v1/auth/verifyResetcode
+// @access Public
+
+exports.verifyResetCode = asyncHandler(async (req, res, next) => {});
