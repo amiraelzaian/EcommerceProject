@@ -152,4 +152,48 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 // @route  post /api/v1/auth/verifyResetcode
 // @access Public
 
-exports.verifyResetCode = asyncHandler(async (req, res, next) => {});
+exports.verifyResetCode = asyncHandler(async (req, res, next) => {
+  //1- Get user based on reset code
+  const hashedResetCode = crypto
+    .createHash("sha256")
+    .update(req.body.resetCode)
+    .digest("hex");
+  const user = await User.findOne({
+    passwordResetCode: hashedResetCode,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  if (!user) {
+    return next(new ApiError("Invalid or expired reset code", 404));
+  }
+  //2- valid reset code
+  user.passwordResetVerified = true;
+  await user.save();
+  res.status(200).json({ staus: "sucess" });
+});
+
+// @desc   Reset password
+// @route  post /api/v1/auth/resetPassword
+// @access Public
+
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+  //1- get user based on email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new ApiError("There is no user with this email", 404));
+  }
+  // 2- check if reset code verified
+  if (!user.passwordResetVerified) {
+    return next(new ApiError("Rest code is not verified", 400));
+  }
+
+  user.password = req.body.newPassword;
+  user.passwordResetCode = undefined;
+  user.passwordResetExpires = undefined;
+  user.passwordResetVerified = undefined;
+
+  await user.save();
+  //3- if everything is ok, generate token
+  const token = createToken(user._id);
+
+  res.status(200).json({ status: "success", token });
+});
