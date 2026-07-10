@@ -1,8 +1,10 @@
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const ApiError = require("../utils/apiError");
 const User = require("../models/user.model");
+const sendEmail = require("../utils/sendEmail");
 
 const createToken = (payload) => {
   const token = jwt.sign({ payload }, process.env.JWT_SECRET_KEY, {
@@ -89,8 +91,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   next();
 });
 
-//@desc user permessions
-
+//@desc user permessions (user autherization)
 exports.allowedTo = (...roles) =>
   asyncHandler(async (req, res, next) => {
     //1- access roles
@@ -100,3 +101,49 @@ exports.allowedTo = (...roles) =>
     }
     next();
   });
+
+// @desc   forgot password
+// @route  post /api/v1/auth/forgotPassword
+// @access Public
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+  //1- get user by email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(
+      new ApiError(`There is no user with that email ${req.body.email}`, 404),
+    );
+  }
+  //2- if user exist, generate hashed reset randome 6 digits, save it n DB
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedResetCode = crypto
+    .createHash("sha256")
+    .update(resetCode)
+    .digest("hex");
+  //save hashed password reset code in DB
+  user.passwordResetCode = hashedResetCode;
+  user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  user.passwordResetVerified = false;
+
+  await user.save();
+  //3- send the reset code via email
+  const message = `
+  Hi ${user.name} \nWe received a request to reset the password on your E-shop Account.\n ${resetCode}\n Enter the code to compelete the reset\nthanks for helping us keep your account secure.\n The E-shop Team
+  `;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password resetcode (valid for 10 minutes)",
+      message,
+    });
+  } catch (err) {
+    user.passwordResetCode = undefined;
+    user.passwordResetExpires = undefined;
+    user.passwordResetVerified = undefined;
+    await user.save();
+    return next(new ApiError(`There is and error in sending email`, 500));
+  }
+  res
+    .status(200)
+    .json({ status: "sucess", message: "Reset code sent to eamil" });
+});
