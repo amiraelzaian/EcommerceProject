@@ -10,10 +10,13 @@ const {
   changeUserPassword,
   getLoggedUserData,
   changeLoggedUserPassword,
+  updateLoggedUserData,
+  deleteLoggedUserData,
 } = require("../controllers/user.controller");
 const {
   createUserValidator,
   changeUserPasswordValidator,
+  updateUserValidator,
 } = require("../utils/validators/userValidator");
 const router = express.Router();
 const { allowedTo, protect } = require("../controllers/auth.controller");
@@ -21,6 +24,8 @@ const { allowedTo, protect } = require("../controllers/auth.controller");
 //user
 router.get("/getme", protect, getLoggedUserData, getUser);
 router.patch("/changeLoggedUserPassword", protect, changeLoggedUserPassword);
+router.patch("/updateMe", protect, updateUserValidator, updateLoggedUserData);
+router.delete("/deleteMe", protect, deleteLoggedUserData);
 
 //Admim
 router

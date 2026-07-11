@@ -115,3 +115,31 @@ exports.changeLoggedUserPassword = asyncHandler(async (req, res, next) => {
   const token = createToken(req.user._id);
   res.status(200).json({ data: req.user, token });
 });
+
+// @desc   Update Logged user data except( role, password )
+// @route  Patch /api/v1/users/updateMe
+// @access Private/Protected
+exports.updateLoggedUserData = asyncHandler(async (req, res, next) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+    },
+    { new: true },
+  );
+  if (!updatedUser) {
+    return next(new ApiError("Error: could not find user to update", 404));
+  }
+  res.status(200).json({ status: "success", data: updatedUser });
+});
+
+// @desc   Deactivate logged user
+// @route  Patch /api/v1/users/deleteMe
+// @access Private/Protected
+
+exports.deleteLoggedUserData = asyncHandler(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+  res.status(204).json({ status: "success" });
+});

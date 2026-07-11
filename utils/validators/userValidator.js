@@ -53,12 +53,13 @@ exports.getUserValidator = [
   validatorMiddleware,
 ];
 exports.updateUserValidator = [
-  check("id").isMongoId().withMessage("Invalid user id format"),
+  check("id").optional().isMongoId().withMessage("Invalid user id format"),
   body("name").custom((val, { req }) => {
     req.body.slug = slugify(val);
     return true;
   }),
   check("email")
+    .optional()
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
@@ -71,6 +72,7 @@ exports.updateUserValidator = [
       }),
     ),
   check("phone")
+    .optional()
     .isMobilePhone(["ar-EG", "ar-SA"])
     .withMessage("Invalid phone number"),
   check("profileImage").optional(),
