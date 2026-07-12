@@ -43,6 +43,7 @@ app.all("*splat/", (req, res, next) => {
 });
 // global error handling middleware
 app.use(globalError);
+
 const server = app.listen(process.env.PORT, () => {
   console.log(`running on port ${process.env.PORT}`);
 });
