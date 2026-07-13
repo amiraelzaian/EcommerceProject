@@ -33,7 +33,7 @@ exports.signupValidator = [
     .withMessage("Password must be at least 6 characters")
     .custom((password, { req }) => {
       if (password !== req.body.passwordConfirm) {
-        throw new Error("Password confirmatin incorrect");
+        throw new Error("Password confirmation incorrect");
       }
       return true;
     }),
