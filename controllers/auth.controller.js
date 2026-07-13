@@ -65,7 +65,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   }
 
   //4- check if user change his password after token generated
-  if (currentUser?.passwordChanged) {
+  if (currentUser?.passwordChangedAt) {
     const passChangedTimeStamp = parseInt(
       currentUser.passwordChangedAt.getTime() / 1000,
       10,
