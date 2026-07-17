@@ -67,8 +67,20 @@ const productSchema = new mongoose.Schema(
       defualt: 0,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    // to enable virstuals
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
+
+// get all review from Review  its product id (fromField) = _id (local field)
+productSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "product",
+  localField: "_id",
+});
 
 productSchema.pre(/^find/, function () {
   this.populate({
