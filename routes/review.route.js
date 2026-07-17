@@ -7,15 +7,29 @@ const {
   updateReview,
   deleteReview,
 } = require("../controllers/review.controller");
+const {
+  createReviewValidator,
+  updateReviewValidator,
+  deleteReviewValidator,
+  getReviewValidator,
+} = require("../utils/validators/reviewValidator");
 
 const { protect, allowedTo } = require("../controllers/auth.controller");
 const router = express.Router();
 
-router.route("/").post(protect, allowedTo("user"), createReview).get(getBrands);
+router
+  .route("/")
+  .post(protect, allowedTo("user"), createReviewValidator, createReview)
+  .get(getReviews);
 router
   .route("/:id")
-  .get(getBrand)
-  .patch(protect, allowedTo("user"), updateReview)
-  .delete(protect, allowedTo("admin", "manager", "user"), deleteReview);
+  .get(getReviewValidator, getReview)
+  .patch(protect, allowedTo("user"), updateReviewValidator, updateReview)
+  .delete(
+    protect,
+    allowedTo("admin", "manager", "user"),
+    deleteReviewValidator,
+    deleteReview,
+  );
 
 module.exports = router;
