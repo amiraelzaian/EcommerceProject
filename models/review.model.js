@@ -11,11 +11,13 @@ const reviewSchema = new mongoose.Schema(
       max: [5, "Max rating value is 5.0"],
       required: [true, "Review ratings required"],
     },
+    // parent reference ( one to one )
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
       required: [true, "Review must belong to user"],
     },
+    // parent reference ( one to many )
     product: {
       type: mongoose.Schema.ObjectId,
       ref: "Product",
