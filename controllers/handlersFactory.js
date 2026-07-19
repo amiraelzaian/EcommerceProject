@@ -9,6 +9,7 @@ exports.deleteOne = (Model) =>
     if (!document) {
       return next(new ApiError(`No document for this id ${id}`, 404));
     }
+    await document.remove();
     res.status(204).send();
   });
 
@@ -22,12 +23,15 @@ exports.updateOne = (Model) =>
         new ApiError(`No document for this id ${req.params.id}`, 404),
       );
     }
+    // trigger the save event when update document :o
+    await document.save();
     res.status(200).json({ data: document });
   });
 
 exports.createOne = (Model) =>
   asyncHandler(async (req, res) => {
     const document = await Model.create(req.body);
+
     res.status(201).json({ data: document });
   });
 

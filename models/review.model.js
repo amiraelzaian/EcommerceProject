@@ -66,6 +66,9 @@ reviewSchema.statics.calcAvgRatingsAndQuantity = async function (productId) {
 reviewSchema.post("save", async function () {
   await this.constructor.calcAvgRatingsAndQuantity(this.product);
 });
+reviewSchema.post("remove", async function () {
+  await this.constructor.calcAvgRatingsAndQuantity(this.product);
+});
 
 const Review = mongoose.model("Review", reviewSchema);
 
