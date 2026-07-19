@@ -15,7 +15,15 @@ const {
   resizeProductImages,
 } = require("../controllers/product.controller");
 const { protect, allowedTo } = require("../controllers/auth.controller");
+const reviewsRoute = require("./review.route");
+
 const router = express.Router();
+
+// nested
+//POST    /products/tjqioto4626272/reviews
+//GET     /products/tjqioto4626272/reviews
+//GET     /products/tjqioto4626272/reviews/6727697hjkjgjhb
+router.use("/:productId/reviews", reviewsRoute);
 
 router
   .route("/")

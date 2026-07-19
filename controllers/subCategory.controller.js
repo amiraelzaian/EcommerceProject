@@ -10,6 +10,7 @@ exports.setCategoryIdToBody = (req, res, next) => {
   next();
 };
 
+// apply nested route
 // middlewarte to filter
 exports.filtersubCategoriesByCategoryId = (req, res, next) => {
   let filterObject = {};
