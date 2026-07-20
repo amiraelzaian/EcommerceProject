@@ -30,7 +30,7 @@ exports.removeAddress = asyncHandler(async (req, res, next) => {
     req.user._id,
     {
       $pull: {
-        addresses: { id: req.params.addressId },
+        addresses: { _id: req.params.addressId },
       },
     },
     { new: true },
@@ -48,11 +48,9 @@ exports.removeAddress = asyncHandler(async (req, res, next) => {
 exports.getLoggedUserAddresses = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id).populate("addresses");
 
-  res
-    .status(200)
-    .json({
-      status: "success",
-      results: user.addresses.length,
-      data: user.addresses,
-    });
+  res.status(200).json({
+    status: "success",
+    results: user.addresses.length,
+    data: user.addresses,
+  });
 });
