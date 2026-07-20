@@ -13,6 +13,7 @@ const productRoute = require("./routes/product.route");
 const userRoute = require("./routes/user.route");
 const authRoute = require("./routes/auth.route");
 const reviewRoute = require("./routes/review.route");
+const wishListRoute = require("./routes/wishlist.route");
 // connect to databaase
 const dbConnection = require("./config/database");
 dbConnection();
@@ -35,6 +36,7 @@ app.use("/api/v1/products", productRoute);
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/reviews", reviewRoute);
+app.use("/api/v1/wishlist", wishListRoute);
 
 app.get("/", (req, res) => {
   res.send("TEST");
