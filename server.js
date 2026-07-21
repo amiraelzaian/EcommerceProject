@@ -6,15 +6,18 @@ const mongoose = require("mongoose");
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
 // routes
-const categoryRoute = require("./routes/category.route");
-const subCategoryRoute = require("./routes/subCategory.route");
-const brandRoute = require("./routes/brand.route");
-const productRoute = require("./routes/product.route");
-const userRoute = require("./routes/user.route");
-const authRoute = require("./routes/auth.route");
-const reviewRoute = require("./routes/review.route");
-const wishListRoute = require("./routes/wishlist.route");
-const addressRoute = require("./routes/address.route");
+const mountRoutes = require("./routes");
+
+// const categoryRoute = require("./routes/category.route");
+// const subCategoryRoute = require("./routes/subCategory.route");
+// const brandRoute = require("./routes/brand.route");
+// const productRoute = require("./routes/product.route");
+// const userRoute = require("./routes/user.route");
+// const authRoute = require("./routes/auth.route");
+// const reviewRoute = require("./routes/review.route");
+// const wishListRoute = require("./routes/wishlist.route");
+// const addressRoute = require("./routes/address.route");
+// const couponRoute = require("./routes/coupon.route");
 // connect to databaase
 const dbConnection = require("./config/database");
 dbConnection();
@@ -30,15 +33,18 @@ if (process.env.NODE_ENV === "development") {
 }
 
 //mount routes
-app.use("/api/v1/categories", categoryRoute);
-app.use("/api/v1/subcategories", subCategoryRoute);
-app.use("/api/v1/brands", brandRoute);
-app.use("/api/v1/products", productRoute);
-app.use("/api/v1/users", userRoute);
-app.use("/api/v1/auth", authRoute);
-app.use("/api/v1/reviews", reviewRoute);
-app.use("/api/v1/wishlist", wishListRoute);
-app.use("/api/v1/addresses", addressRoute);
+
+mountRoutes(app);
+// app.use("/api/v1/categories", categoryRoute);
+// app.use("/api/v1/subcategories", subCategoryRoute);
+// app.use("/api/v1/brands", brandRoute);
+// app.use("/api/v1/products", productRoute);
+// app.use("/api/v1/users", userRoute);
+// app.use("/api/v1/auth", authRoute);
+// app.use("/api/v1/reviews", reviewRoute);
+// app.use("/api/v1/wishlist", wishListRoute);
+// app.use("/api/v1/addresses", addressRoute);
+// app.use("/api/v1/coupons", couponRoute);
 
 app.get("/", (req, res) => {
   res.send("TEST");
