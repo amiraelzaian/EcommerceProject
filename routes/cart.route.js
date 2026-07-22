@@ -4,6 +4,8 @@ const {
   getLoggedUserCart,
   deleteCartItem,
   clearCart,
+  updateCartItemQuantity,
+  applyCoupon,
 } = require("../controllers/cart.controller");
 
 const { protect, allowedTo } = require("../controllers/auth.controller");
@@ -15,6 +17,7 @@ router
   .post(addProductToCart)
   .get(getLoggedUserCart)
   .delete(clearCart);
-router.route("/:itemId").delete(deleteCartItem);
+router.patch("/applyCoupon", applyCoupon);
+router.route("/:itemId").patch(updateCartItemQuantity).delete(deleteCartItem);
 
 module.exports = router;
