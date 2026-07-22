@@ -52,3 +52,55 @@ exports.addProductToCart = asyncHandler(async (req, res, next) => {
     data: cart,
   });
 });
+
+// @desc   Get zlogges userscart
+// @route  GET /api/vi/cart
+// @access private/user
+exports.getLoggedUserCart = asyncHandler(async (req, res, next) => {
+  const cart = await Cart.findOne({ user: req.user._id });
+  if (!cart) {
+    return next(new ApiError("There is no cart ", 404));
+  }
+  res
+    .status(200)
+    .json({ status: "success", result: cart.cartItems.length, data: cart });
+});
+
+// @desc   Remove cart item
+// @route  DEL /api/vi/cart/itemId
+// @access private/user
+
+exports.deleteCartItem = asyncHandler(async (req, res, next) => {
+  const cart = await Cart.findOneAndUpdate(
+    { user: req.user._id },
+    {
+      $pull: {
+        cartItems: { _id: req.params.itemId },
+      },
+    },
+    { new: true },
+  );
+  console.log(cart);
+  //calculate total cart price
+  const totalPrice = calcTotalPrice(cart);
+  cart.totalCartPrice = totalPrice;
+  await cart.save();
+  res.status(201).json({
+    status: "success",
+    message: "Product was addes successfully",
+    result: cart.cartItems.length,
+    data: cart,
+  });
+});
+
+// @desc   Clear cart
+// @route  DEL /api/vi/cart/
+// @access private/user
+
+exports.clearCart = asyncHandler(async (req, res, next) => {
+  const result = await Cart.findOneAndDelete({ user: req.user._id });
+  if (!result) {
+    return next(new ApiError("cart is not found", 404));
+  }
+  res.status(204).send();
+});
