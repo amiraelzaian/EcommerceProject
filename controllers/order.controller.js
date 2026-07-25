@@ -4,6 +4,7 @@ const Product = require("../models/product.model");
 const factory = require("./handlersFactory");
 const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
 //@desc     Create cash order
 //@route    POST /api/v1/orders/cartId
@@ -69,7 +70,7 @@ exports.updateOrderStatusToPaid = asyncHandler(async (req, res, next) => {
   }
   //update order
   order.isPaid = true;
-  order.PaidAt = Date.now();
+  order.paidAt = Date.now();
 
   const updateOrder = await order.save();
 
@@ -90,4 +91,49 @@ exports.updateOrderStatusToDelivered = asyncHandler(async (req, res, next) => {
   const updateOrder = await order.save();
 
   res.status(200).json({ status: "success", data: updateOrder });
+});
+
+//@desc     get checkout session from stripe and send it as response
+//@route    GET /api/v1/orders/checkout-session/cartId
+//@acces    Private/user
+exports.checkoutSessioin = asyncHandler(async (req, res, next) => {
+  // get cart to get total price
+  //app setting
+  let taxPrice = 0;
+  let shippingPrice = 0;
+  //1- get cart based on cart id
+  const cart = await Cart.findById(req.params.cartId);
+  if (!cart) {
+    return next(new ApiError("There is no cart with this id :(", 404));
+  }
+  //2- get order price based on cart price ,check if coupon applyed
+  const cartPrice = cart.totalPriceAfterDiscount
+    ? cart.totalPriceAfterDiscount
+    : cart.totalCartPrice;
+  const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
+  //3- create stripe checkout session
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    line_items: [
+      {
+        price_data: {
+          currency: "egp",
+          product_data: {
+            name: `Order for ${req.user.name}`,
+          },
+          unit_amount: Math.round(totalOrderPrice * 100), // Stripe expects the smallest currency unit
+        },
+        quantity: 1,
+      },
+    ],
+    success_url: `${req.protocol}://${req.get("host")}/orders`,
+    cancel_url: `${req.protocol}://${req.get("host")}/cart`,
+    customer_email: req.user.email,
+    client_reference_id: req.params.cartId,
+    metadata: {
+      shippingAddress: JSON.stringify(req.body.shippingAddress),
+    },
+  });
+  //4-send session to response
+  res.status(200).json({ status: "success", session });
 });

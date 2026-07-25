@@ -1,4 +1,7 @@
 require("dotenv").config();
+const cors = require("cors");
+const compression = require("compression");
+
 const path = require("path");
 const morgan = require("morgan");
 const express = require("express");
@@ -8,13 +11,16 @@ const globalError = require("./middlewares/errorMiddleware");
 // routes
 const mountRoutes = require("./routes"); // just to this as name of file is index
 
-
 // connect to databaase
 const dbConnection = require("./config/database");
 dbConnection();
 //express app
 const app = express();
-
+// Enable other domains to access your application
+app.use(cors());
+app.options("*all", cors());
+//compress all reponses
+app.use(compression());
 //middlewares
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
@@ -26,7 +32,6 @@ if (process.env.NODE_ENV === "development") {
 //mount routes
 
 mountRoutes(app);
-
 
 app.get("/", (req, res) => {
   res.send("TEST");

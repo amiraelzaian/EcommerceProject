@@ -6,12 +6,21 @@ const {
   findSpecificOrder,
   updateOrderStatusToPaid,
   updateOrderStatusToDelivered,
+  checkoutSessioin,
 } = require("../controllers/order.controller");
 const { protect, allowedTo } = require("../controllers/auth.controller.js");
 
 const router = express.Router();
 
 router.use(protect);
+
+router.get(
+  "/checkout-session/:cartId",
+  protect,
+  allowedTo("user"),
+  checkoutSessioin,
+);
+
 router.route("/:cartId").post(allowedTo("user"), createCashOrder);
 router
   .route("/")
