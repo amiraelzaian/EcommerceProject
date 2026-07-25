@@ -21,7 +21,8 @@ const orderSchema = new mongoose.Schema(
     taxPrice: {
       type: Number,
       default: 0,
-    }, shippingAddress: {
+    },
+    shippingAddress: {
       details: String,
       phone: String,
       city: String,
@@ -56,5 +57,14 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+orderSchema.pre(/^find/, function () {
+  this.populate({
+    path: "user",
+    select: "name profileImage email phone",
+  }).populate({
+    path: "cartItems.product",
+    select: "title imageCover",
+  });
+});
 
 module.exports = mongoose.model("Order", orderSchema);

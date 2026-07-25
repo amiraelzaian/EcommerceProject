@@ -6,8 +6,8 @@ const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 
 //@desc     Create cash order
-//@route    Post /api/v1/orders/cartId
-//@acces    Private/protected/user
+//@route    POST /api/v1/orders/cartId
+//@acces    Private/user
 exports.createCashOrder = asyncHandler(async (req, res, next) => {
   //app setting
   let taxPrice = 0;
@@ -44,4 +44,50 @@ exports.createCashOrder = asyncHandler(async (req, res, next) => {
     await Cart.findByIdAndDelete(cart._id);
   }
   res.status(201).json({ status: "success", data: order });
+});
+
+exports.filterOrderForLoggedUser = asyncHandler(async (req, res, next) => {
+  if (req.user.role === "user") req.filterObj = { user: req.user._id };
+  next();
+});
+//@desc     Get all orders
+//@route    GET /api/v1/user-admin-ocartId
+//@acces    Private/admin/manager
+exports.findAllOrders = factory.getAll(Order);
+//@desc     Get all orders
+//@route    GET /api/v1/orders/orderId
+//@acces    Private/user-admin-ocartId
+exports.findSpecificOrder = factory.getOne(Order);
+
+//@desc     Update order status
+//@route    PATCH /api/v1/orders/orderId
+//@acces    Private/admin/manager
+exports.updateOrderStatusToPaid = asyncHandler(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new ApiError("Order is not found", 404));
+  }
+  //update order
+  order.isPaid = true;
+  order.PaidAt = Date.now();
+
+  const updateOrder = await order.save();
+
+  res.status(200).json({ status: "success", data: updateOrder });
+});
+//@desc     Update order delivery
+//@route    PATCH /api/v1/orders/orderId
+//@acces    Private/admin/manager
+exports.updateOrderStatusToDelivered = asyncHandler(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new ApiError("Order is not found", 404));
+  }
+  //update order
+  order.isDelivered = true;
+  order.deliveredAt = Date.now();
+
+  const updateOrder = await order.save();
+
+  res.status(200).json({ status: "success", data: updateOrder });
 });
