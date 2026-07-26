@@ -1,5 +1,6 @@
 const Order = require("../models/order.model");
 const Cart = require("../models/cart.model");
+const User = require("../models/user.model");
 const Product = require("../models/product.model");
 const factory = require("./handlersFactory");
 const asyncHandler = require("express-async-handler");
@@ -138,6 +139,44 @@ exports.checkoutSessioin = asyncHandler(async (req, res, next) => {
   res.status(200).json({ status: "success", session });
 });
 
+// checkout payment(online)
+
+const createCardOrder = async (session) => {
+  const cartId = session.client_reference_id;
+  const shippingAddress = session.metadata;
+  const orderPrice = session.amount_total / 100;
+
+  const cart = await Cart.findById(cartId);
+
+  const user = await User.findOne({ email: session.customer_email });
+
+  // create order with default payment method (card)
+  const order = await Order.create({
+    user: req.user._id,
+    cartItems: cart.cartItems,
+    shippingAddress: shippingAddress,
+    totalOrderPrice: orderPrice,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethod: "card",
+  });
+
+  //after create order, - prduct quantity, + product sold
+  if (order) {
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+    // make use access many operations or send many requests in one time and one block it is faster than send each one alone
+    await Product.bulkWrite(bulkOption);
+    //5- clear cart based on cartId
+    await Cart.findByIdAndDelete(cart._id);
+  }
+  res.status(201).json({ status: "success", data: order });
+};
+
 exports.webhookCheckout = asyncHandler(async (req, res, net) => {
   let event;
   if (process.env.STRIPE_WEBHOOK_SECRET) {
@@ -157,6 +196,8 @@ exports.webhookCheckout = asyncHandler(async (req, res, net) => {
     }
   }
   if (event.type === "checkout.session.completed") {
-    console.log("create order her...");
+    // create order
+    createCardOrder(event.data.object);
   }
+  res.status(200).json({ recieved: true });
 });
