@@ -152,7 +152,7 @@ const createCardOrder = async (session) => {
 
   // create order with default payment method (card)
   const order = await Order.create({
-    user: req.user._id,
+    user: session.user._id,
     cartItems: cart.cartItems,
     shippingAddress: shippingAddress,
     totalOrderPrice: orderPrice,
@@ -174,7 +174,6 @@ const createCardOrder = async (session) => {
     //5- clear cart based on cartId
     await Cart.findByIdAndDelete(cart._id);
   }
-  res.status(201).json({ status: "success", data: order });
 };
 
 exports.webhookCheckout = asyncHandler(async (req, res, net) => {
