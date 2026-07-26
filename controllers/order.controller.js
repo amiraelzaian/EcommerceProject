@@ -143,16 +143,14 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
 
 const createCardOrder = async (session) => {
   const cartId = session.client_reference_id;
-  const shippingAddress = session.metadata;
+  const shippingAddress = JSON.parse(session.metadata.shippingAddress);
   const orderPrice = session.amount_total / 100;
 
   const cart = await Cart.findById(cartId);
-
   const user = await User.findOne({ email: session.customer_email });
 
-  // create order with default payment method (card)
   const order = await Order.create({
-    user: session.user._id,
+    user: user._id,
     cartItems: cart.cartItems,
     shippingAddress: shippingAddress,
     totalOrderPrice: orderPrice,
@@ -161,7 +159,6 @@ const createCardOrder = async (session) => {
     paymentMethod: "card",
   });
 
-  //after create order, - prduct quantity, + product sold
   if (order) {
     const bulkOption = cart.cartItems.map((item) => ({
       updateOne: {
@@ -169,34 +166,29 @@ const createCardOrder = async (session) => {
         update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
       },
     }));
-    // make use access many operations or send many requests in one time and one block it is faster than send each one alone
     await Product.bulkWrite(bulkOption);
-    //5- clear cart based on cartId
     await Cart.findByIdAndDelete(cart._id);
   }
 };
 
-exports.webhookCheckout = asyncHandler(async (req, res, net) => {
+exports.webhookCheckout = asyncHandler(async (req, res, next) => {
+  const signature = req.headers["stripe-signature"];
   let event;
-  if (process.env.STRIPE_WEBHOOK_SECRET) {
-    // Get the signature sent by Stripe
-    const signature = req.headers["stripe-signature"];
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET,
-      );
-    } catch (err) {
-      console.log(` Webhook signature verification failed.`, err.message);
-      return res
-        .status(400)
-        .send(` Webhook signature verification failed.`, err.message);
-    }
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    console.log(`Webhook signature verification failed.`, err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
+
   if (event.type === "checkout.session.completed") {
-    // create order
-    createCardOrder(event.data.object);
+    await createCardOrder(event.data.object);
   }
-  res.status(200).json({ recieved: true });
+
+  res.status(200).json({ received: true });
 });
