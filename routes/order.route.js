@@ -6,7 +6,7 @@ const {
   findSpecificOrder,
   updateOrderStatusToPaid,
   updateOrderStatusToDelivered,
-  checkoutSessioin,
+  checkoutSession,
 } = require("../controllers/order.controller");
 const { protect, allowedTo } = require("../controllers/auth.controller.js");
 
@@ -18,7 +18,7 @@ router.get(
   "/checkout-session/:cartId",
   protect,
   allowedTo("user"),
-  checkoutSessioin,
+  checkoutSession,
 );
 
 router.route("/:cartId").post(allowedTo("user"), createCashOrder);

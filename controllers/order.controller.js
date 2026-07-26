@@ -97,7 +97,7 @@ exports.updateOrderStatusToDelivered = asyncHandler(async (req, res, next) => {
 //@desc     get checkout session from stripe and send it as response
 //@route    GET /api/v1/orders/checkout-session/cartId
 //@acces    Private/user
-exports.checkoutSessioin = asyncHandler(async (req, res, next) => {
+exports.checkoutSession = asyncHandler(async (req, res, next) => {
   // get cart to get total price
   //app setting
   let taxPrice = 0;
@@ -127,8 +127,8 @@ exports.checkoutSessioin = asyncHandler(async (req, res, next) => {
         quantity: 1,
       },
     ],
-    success_url: `${req.protocol}://${req.get("host")}/api/v1/orders`,
-    cancel_url: `${req.protocol}://${req.get("host")}/api/v1/cart`,
+    success_url: `${req.protocol}://${req.get("host")}/orders`,
+    cancel_url: `${req.protocol}://${req.get("host")}/cart`,
     customer_email: req.user.email,
     client_reference_id: req.params.cartId,
     metadata: {
