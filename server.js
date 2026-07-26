@@ -13,6 +13,7 @@ const mountRoutes = require("./routes"); // just to this as name of file is inde
 
 // connect to databaase
 const dbConnection = require("./config/database");
+const { webhookCheckout } = require("./controllers/order.controller");
 dbConnection();
 //express app
 const app = express();
@@ -21,6 +22,14 @@ app.use(cors());
 app.options("*all", cors());
 //compress all reponses
 app.use(compression());
+
+//checkout webhook
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  webhookCheckout,
+);
+
 //middlewares
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
