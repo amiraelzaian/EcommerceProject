@@ -1,6 +1,7 @@
 require("dotenv").config();
 const cors = require("cors");
 const compression = require("compression");
+const rateLimit = require("express-rate-limit");
 
 const path = require("path");
 const morgan = require("morgan");
@@ -31,13 +32,21 @@ app.post(
 );
 
 //middlewares
-app.use(express.json());
+app.use(express.json({ limit: "20kb" })); // limit body size
 app.use(express.static(path.join(__dirname, "uploads")));
 app.set("query parser", "extended");
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// use rate limit to limit requests numlber
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  message: `Too many accounts created from this IP, Try after an 15 minutes !`,
+});
+
+app.use("/api", limiter);
 //mount routes
 
 mountRoutes(app);
